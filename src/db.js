@@ -1,9 +1,9 @@
 import pkg from 'pg'
 import { DB_HOST,DB_PORT,DB_USER,DB_PASSWORD,DB_DATABASE } from './config.js'
 
-const { Client } = pkg
+const { Pool } = pkg
 
-export const client = new Client({
+export const pool = new Pool({
     host: DB_HOST,
     user: DB_USER,
     port: DB_PORT,
@@ -11,4 +11,3 @@ export const client = new Client({
     database: DB_DATABASE,
     ssl: true
 })
-

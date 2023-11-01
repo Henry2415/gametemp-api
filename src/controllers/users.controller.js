@@ -92,10 +92,10 @@ export const createUser = async (req,res) => {
         if (rowCount > 0) {
             const {rows} = await pool.query('select * from user_app where email = $1 and record_status <> 3',[email])
             res.send({
-                id: result.rows[0].id,
-                name: result.rows[0].name,
-                email: result.rows[0].email,
-                phone: result.rows[0].phone
+                id: rows[0].id,
+                name: rows[0].name,
+                email: rows[0].email,
+                phone: rows[0].phone
             })
         }
         else {

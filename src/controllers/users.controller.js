@@ -1,4 +1,5 @@
 import { pool } from "../db.js"
+import bcrypt from 'bcrypt'
 
 export const getUsers = async (req,res) => {
     try {
@@ -12,16 +13,32 @@ export const getUsers = async (req,res) => {
     }
 }
 
-export const getUser = async (req, res) => {
+export const login = async (req, res) => {
     try {
         const {email,password} = req.body
-        const result = await pool.query('select * from user_app where email = $1 and password = $2',[email,password])
+        const result = await pool.query('select * from user_app where email = $1 and record_status <> 3',[email])
         if (result.rowCount > 0) {
-            res.json(result.rows[0])
+            const passwordBD = result.rows[0].password
+            const compareResult = await bcrypt.compare(password,passwordBD)
+            if (compareResult) {
+                //res.json(result.rows[0])
+                res.send({
+                    id: result.rows[0].id,
+                    name: result.rows[0].name,
+                    email: result.rows[0].email,
+                    phone: result.rows[0].phone
+                })
+            }
+            else {
+                return res.json({
+                    message: 'Password no corresponde al registrado'
+                })
+            }
+            
         }
         else {
-            res.json({
-                message: 'Usuario y/o contraseña erronea'
+            return res.json({
+                message: 'Usuario no existe'
             })
         }
     } catch (error) {
@@ -34,7 +51,7 @@ export const getUser = async (req, res) => {
 
 export const createUser = async (req,res) => {
     try {
-        const {name,email,password,phone,imei,modelo} = req.body
+        const {name,email,password,phone,imei,model} = req.body
 
         //VALIDACIONES
         if (name === undefined) {
@@ -48,7 +65,7 @@ export const createUser = async (req,res) => {
             })
         }
         else {
-            const {rowCount} = await pool.query('select * from user_app where email = $1 and estado_registro <> 3',[email])
+            const {rowCount} = await pool.query('select * from user_app where email = $1 and record_status <> 3',[email])
 
             if (rowCount > 0) {
                 return res.json({
@@ -67,10 +84,25 @@ export const createUser = async (req,res) => {
             })
         }
 
-        const result = await pool.query('Insert into user_app(name,phone,email,password,imei,modelo,fecha_creacion,fecha_ult_conex) ' +
-                                        'values ($1,$2,$3,$4,$5,$6,current_timestamp,current_timestamp);',
-                                        [name,phone,email,password,imei,modelo])
-        res.json(result)
+        const hashPassword = await bcrypt.hash(password,10)
+
+        const {rowCount} = await pool.query('Insert into user_app(name,phone,email,password,imei,model,creation_date,last_cnx_date) ' +
+                                        'values ($1,$2,$3,$4,$5,$6,LOCALTIMESTAMP- interval \'5 hours\',LOCALTIMESTAMP- interval \'5 hours\');',
+                                        [name,phone,email,hashPassword,imei,model])
+        if (rowCount > 0) {
+            const {rows} = await pool.query('select * from user_app where email = $1 and record_status <> 3',[email])
+            res.send({
+                id: result.rows[0].id,
+                name: result.rows[0].name,
+                email: result.rows[0].email,
+                phone: result.rows[0].phone
+            })
+        }
+        else {
+            return res.json({
+                message: 'No se pudo registrar el usuario'
+            })
+        }
     } catch (error) {
         console.log(error)
         return res.status(500).json({

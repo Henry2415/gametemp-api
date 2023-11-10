@@ -23,22 +23,31 @@ export const login = async (req, res) => {
             if (compareResult) {
                 //res.json(result.rows[0])
                 res.send({
-                    id: result.rows[0].id,
-                    name: result.rows[0].name,
-                    email: result.rows[0].email,
-                    phone: result.rows[0].phone
+                    success: true,
+                    message: '',
+                    user:
+                    {
+                        id: result.rows[0].id,
+                        name: result.rows[0].name,
+                        email: result.rows[0].email,
+                        phone: result.rows[0].phone
+                    }
                 })
             }
             else {
-                return res.json({
-                    message: 'Password no corresponde al registrado'
+                return res.send({
+                    success: false,
+                    message: 'Password no corresponde al registrado',
+                    user: null
                 })
             }
             
         }
         else {
-            return res.json({
-                message: 'Usuario no existe'
+            return res.send({
+                success: false,
+                message: 'Usuario no existe',
+                user: null
             })
         }
     } catch (error) {

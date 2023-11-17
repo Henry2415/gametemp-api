@@ -64,32 +64,42 @@ export const createUser = async (req,res) => {
 
         //VALIDACIONES
         if (name === undefined) {
-            return res.json({
-                message: 'Debe incluir un nombre de usuario'
+            return res.send({
+                success: false,
+                message: 'Debe incluir un nombre de usuario',
+                user: null
             })
         }
         if (email === undefined) {
-            return res.json({
-                message: 'Debe incluir un email de usuario'
+            return res.send({
+                success: false,
+                message: 'Debe incluir un email de usuario',
+                user: null
             })
         }
         else {
             const {rowCount} = await pool.query('select * from user_app where email = $1 and record_status <> 3',[email])
 
             if (rowCount > 0) {
-                return res.json({
-                    message: 'Ya existe el usuario que quiere registrar'
+                return res.send({
+                    success: false,
+                    message: 'Ya existe el usuario que quiere registrar',
+                    user: null
                 })
             }
         }
         if (password === undefined) {
-            return res.json({
-                message: 'Debe incluir un password de usuario'
+            return res.send({
+                success: false,
+                message: 'Debe incluir un password de usuario',
+                user: null
             })
         }
         else if(password.length < 8) {
-            return res.json({
-                message: 'Debe incluir un password de usuario mayor o igual a 8 caracteres'
+            return res.send({
+                success: false,
+                message: 'Debe incluir un password de usuario mayor o igual a 8 caracteres',
+                user: null
             })
         }
 
@@ -101,15 +111,23 @@ export const createUser = async (req,res) => {
         if (rowCount > 0) {
             const {rows} = await pool.query('select * from user_app where email = $1 and record_status <> 3',[email])
             res.send({
-                id: rows[0].id,
-                name: rows[0].name,
-                email: rows[0].email,
-                phone: rows[0].phone
+                success: true,
+                message: '',
+                user:
+                {
+                    id: rows[0].id,
+                    name: rows[0].name,
+                    email: rows[0].email,
+                    phone: rows[0].phone
+                }
+                
             })
         }
         else {
-            return res.json({
-                message: 'No se pudo registrar el usuario'
+            return res.send({
+                success: false,
+                message: 'No se pudo registrar el usuario',
+                user: null
             })
         }
     } catch (error) {

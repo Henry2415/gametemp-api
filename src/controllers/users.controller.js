@@ -66,7 +66,7 @@ export const createUser = async (req,res) => {
         const {name,email,password,phone,imei,model} = req.body
 
         //VALIDACIONES
-        if (name === undefined) {
+        if (name === undefined || name.length === 0) {
             return res.send({
                 success: false,
                 errorId:'2.1',
@@ -74,7 +74,7 @@ export const createUser = async (req,res) => {
                 user: null
             })
         }
-        if (email === undefined) {
+        if (email === undefined || name.length === 0) {
             return res.send({
                 success: false,
                 errorId:'2.2',
@@ -94,7 +94,7 @@ export const createUser = async (req,res) => {
                 })
             }
         }
-        if (password === undefined) {
+        if (password === undefined || name.length === 0) {
             return res.send({
                 success: false,
                 errorId:'2.4',

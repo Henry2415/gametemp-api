@@ -16,6 +16,7 @@ export const getUsers = async (req,res) => {
 export const login = async (req, res) => {
     try {
         const {email,password} = req.body
+        console.log(res.body)
         const result = await pool.query('select * from user_app where email = $1 and record_status <> 3',[email])
         if (result.rowCount > 0) {
             const passwordBD = result.rows[0].password
@@ -37,6 +38,7 @@ export const login = async (req, res) => {
             else {
                 return res.send({
                     success: false,
+                    errorId:'1.2',
                     message: 'Password no corresponde al registrado',
                     user: null
                 })
@@ -46,6 +48,7 @@ export const login = async (req, res) => {
         else {
             return res.send({
                 success: false,
+                errorId:'1.1',
                 message: 'Usuario no existe',
                 user: null
             })
@@ -66,6 +69,7 @@ export const createUser = async (req,res) => {
         if (name === undefined) {
             return res.send({
                 success: false,
+                errorId:'2.1',
                 message: 'Debe incluir un nombre de usuario',
                 user: null
             })
@@ -73,6 +77,7 @@ export const createUser = async (req,res) => {
         if (email === undefined) {
             return res.send({
                 success: false,
+                errorId:'2.2',
                 message: 'Debe incluir un email de usuario',
                 user: null
             })
@@ -83,6 +88,7 @@ export const createUser = async (req,res) => {
             if (rowCount > 0) {
                 return res.send({
                     success: false,
+                    errorId:'2.3',
                     message: 'Ya existe el usuario que quiere registrar',
                     user: null
                 })
@@ -91,6 +97,7 @@ export const createUser = async (req,res) => {
         if (password === undefined) {
             return res.send({
                 success: false,
+                errorId:'2.4',
                 message: 'Debe incluir un password de usuario',
                 user: null
             })
@@ -98,6 +105,7 @@ export const createUser = async (req,res) => {
         else if(password.length < 8) {
             return res.send({
                 success: false,
+                errorId:'2.5',
                 message: 'Debe incluir un password de usuario mayor o igual a 8 caracteres',
                 user: null
             })
@@ -126,6 +134,7 @@ export const createUser = async (req,res) => {
         else {
             return res.send({
                 success: false,
+                errorId:'2.6',
                 message: 'No se pudo registrar el usuario',
                 user: null
             })

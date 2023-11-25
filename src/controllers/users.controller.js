@@ -16,7 +16,8 @@ export const getUsers = async (req,res) => {
 export const login = async (req, res) => {
     try {
         const {email,password} = req.body
-        console.log(res.body)
+        console.log(req.body)
+
         const result = await pool.query('select * from user_app where email = $1 and record_status <> 3',[email])
         if (result.rowCount > 0) {
             const passwordBD = result.rows[0].password
@@ -31,7 +32,8 @@ export const login = async (req, res) => {
                         id: result.rows[0].id,
                         name: result.rows[0].name,
                         email: result.rows[0].email,
-                        phone: result.rows[0].phone
+                        phone: result.rows[0].phone,
+                        balance: result.rows[0].balance
                     }
                 })
             }
@@ -113,9 +115,17 @@ export const createUser = async (req,res) => {
 
         const hashPassword = await bcrypt.hash(password,10)
 
-        const {rowCount} = await pool.query('Insert into user_app(name,phone,email,password,imei,model,creation_date,last_cnx_date) ' +
-                                        'values ($1,$2,$3,$4,$5,$6,LOCALTIMESTAMP- interval \'5 hours\',LOCALTIMESTAMP- interval \'5 hours\');',
-                                        [name,phone,email,hashPassword,imei,model])
+        const {rows} = await pool.query('select value_flt from game_parameter where type = \'INITIAL_BALANCE\' and flag_1 = 1 and record_status <> 3')
+        console.log(rows)
+        var initBalance = 0.0
+        if (rows.length > 0) {
+            initBalance = rows[0].value_flt
+        }
+        console.log(initBalance)
+
+        const {rowCount} = await pool.query('Insert into user_app(name,phone,email,password,imei,model,creation_date,last_cnx_date,balance) ' +
+                                        'values ($1,$2,$3,$4,$5,$6,LOCALTIMESTAMP- interval \'5 hours\',LOCALTIMESTAMP- interval \'5 hours\',$7);',
+                                        [name,phone,email,hashPassword,imei,model,initBalance])
         if (rowCount > 0) {
             const {rows} = await pool.query('select * from user_app where email = $1 and record_status <> 3',[email])
             res.send({
@@ -126,7 +136,8 @@ export const createUser = async (req,res) => {
                     id: rows[0].id,
                     name: rows[0].name,
                     email: rows[0].email,
-                    phone: rows[0].phone
+                    phone: rows[0].phone,
+                    balance: rows[0].balance
                 }
                 
             })

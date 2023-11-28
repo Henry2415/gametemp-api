@@ -157,3 +157,42 @@ export const createUser = async (req,res) => {
         })
     }
 }
+
+export const getProductByRound = async (req,res) => {
+    try {
+        const {round} = req.body
+        const {rows} = await pool.query('select * from product where level_id = $1 order by id',[round])
+        if (rows.length > 0) {
+            var products = []
+            for(var i = 0; i< rows.length; i++){
+                var product = new Object()
+                product.id = rows[i].id
+                product.name = rows[i].name
+                product.purchasePrice= rows[i].purchase_price
+                product.salePrice = rows[i].sale_price
+                product.round = round
+                product.img = rows[i].foto
+                products.push(product)
+            }
+            res.send({
+                success: true,
+                message: '',
+                products:products 
+            })
+        }
+        else {
+            res.send({
+                success: false,
+                idError:'3.1',
+                message: 'No existen productos para esa ronda',
+                products: null
+            })
+        }
+        
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: 'Algo salió mal'
+        })
+    }
+}

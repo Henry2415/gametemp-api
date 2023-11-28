@@ -36,5 +36,12 @@
             "id":2.6,
             "msg":"No se pudo registrar el usuario"
         }
+    ],
+    "product":
+    [
+        {
+            "id":3.1,
+            "msg":"No existen productos para esa ronda"
+        }
     ]
 }

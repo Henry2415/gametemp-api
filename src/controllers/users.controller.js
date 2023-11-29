@@ -160,8 +160,8 @@ export const createUser = async (req,res) => {
 
 export const getProductByRound = async (req,res) => {
     try {
-        const {round} = req.body
-        const {rows} = await pool.query('select * from product where level_id = $1 order by id',[round])
+        const {idRound} = req.body
+        const {rows} = await pool.query('select * from product where level_id = $1 order by id',[idRound])
         if (rows.length > 0) {
             var products = []
             for(var i = 0; i< rows.length; i++){
@@ -170,7 +170,7 @@ export const getProductByRound = async (req,res) => {
                 product.name = rows[i].name
                 product.purchasePrice= rows[i].purchase_price
                 product.salePrice = rows[i].sale_price
-                product.round = round
+                product.round = idRound
                 product.img = rows[i].foto
                 products.push(product)
             }

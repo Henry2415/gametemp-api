@@ -43,5 +43,16 @@
             "id":3.1,
             "msg":"No existen productos para esa ronda"
         }
+    ],
+    "buy":
+    [
+        {
+            "id":4.1,
+            "msg":"No se pudo actualizar el saldo del usuario"
+        },
+        {
+            "id":4.2,
+            "msg":"No se pudo registrar el historial de compra del usuario"
+        }
     ]
 }

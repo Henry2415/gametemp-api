@@ -196,3 +196,53 @@ export const getProductByRound = async (req,res) => {
         })
     }
 }
+
+export const getBuyUser = async (req,res) => {
+    try {
+        const {idUser,idProduct,idLevel,costBuy} = req.body
+        const {rowCount} = await pool.query('update user_app set balance = balance - $1, level = $2 where id = $3',[costBuy,idLevel,idUser])
+        if(rowCount) {
+            const {rowCount} = await pool.query('insert into his_user_app(id_user,id_product,type_transaction,amount,creation_date) ' +
+                                            'values ($1,$2,\'BUY\',$3,LOCALTIMESTAMP- interval \'5 hours\');',
+                                            [idUser,idProduct,costBuy])
+            if (rowCount > 0) {
+                const {rows} = await pool.query('select * from user_app where id = $1 and record_status <> 3',[idUser])
+                res.send({
+                    success: true,
+                    message: '',
+                    user:
+                    {
+                        id: rows[0].id,
+                        name: rows[0].name,
+                        email: rows[0].email,
+                        phone: rows[0].phone,
+                        balance: rows[0].balance
+                    }
+                    
+                })
+            }
+            else {
+                return res.send({
+                    success: false,
+                    idError:'4.2',
+                    message: 'No se pudo registrar el historial de compra del usuario',
+                    user: null
+                })
+            }
+        }
+        else {
+            return res.send({
+                success: false,
+                idError:'4.1',
+                message: 'No se pudo actualizar el saldo del usuario',
+                user: null
+            })
+        }
+        
+    } catch (error) {
+        console.log(error)
+        return res.status(500).json({
+            message: 'Algo salió mal'
+        })
+    }
+}
